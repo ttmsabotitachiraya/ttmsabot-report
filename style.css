@@ -1,0 +1,203 @@
+:root{
+  --green:#1b5e3d;
+  --gold:#c5a56a;
+  --bg:#f9f9f9;
+  --card-bg:#ffffff;
+  --text:#1f2d26;
+  --muted:#68746a;
+  --radius:14px;
+  --transition:0.28s ease;
+}
+
+/* Global */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Prompt',sans-serif; /* Prompt ทั้งหน้า */
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.45;
+}
+
+a{color:inherit;text-decoration:none}
+
+/* Header */
+header.site-header{
+  background: linear-gradient(135deg,var(--green) 0%, #2d6f4f 100%);
+  color:#fff;
+  padding:28px 20px;
+  text-align:left;
+  display:flex;
+  align-items:center;
+  gap:20px;
+  box-shadow: 0 6px 22px rgba(27,94,61,0.12);
+}
+.container{max-width:1100px;margin:0 auto;width:100%}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.brand img{
+  width:72px;
+  height:72px;
+  object-fit:contain;
+  border-radius:8px;
+  background:rgba(255,255,255,0.06);
+  padding:6px;
+}
+.brand .title{
+  font-size:18px;
+  font-weight:600;
+  line-height:1.05;
+}
+.brand .subtitle{
+  font-size:13px;
+  opacity:0.95;
+  margin-top:2px;
+  color:rgba(255,255,255,0.92);
+  font-weight:500;
+}
+
+/* Intro text on the right (optional) */
+.header-actions{
+  margin-left:auto;
+  text-align:right;
+  color:rgba(255,255,255,0.95);
+  font-size:14px;
+}
+.header-actions p{margin:0;font-weight:400}
+
+/* Main area */
+main{
+  padding:44px 20px;
+}
+
+.hero{
+  max-width:1100px;
+  margin:0 auto 28px;
+  display:flex;
+  align-items:center;
+  gap:20px;
+  background:linear-gradient(180deg, rgba(255,255,255,1), rgba(255,255,255,0.98));
+  padding:22px;
+  border-radius:12px;
+  box-shadow:0 6px 18px rgba(16,24,20,0.04);
+}
+.hero-left{
+  flex:1;
+}
+.hero h1{
+  margin:0 0 6px;
+  font-size:20px;
+  font-weight:600;
+  color:var(--text);
+}
+.hero p{
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+/* Grid of report cards */
+.cards{
+  max-width:1100px;
+  margin:18px auto 60px;
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:20px;
+  padding:0 6px;
+}
+
+.card{
+  background:var(--card-bg);
+  border-radius:var(--radius);
+  padding:22px;
+  text-align:center;
+  box-shadow: 0 6px 18px rgba(22,28,24,0.04);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  border:1px solid rgba(0,0,0,0.03);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  min-height:150px;
+  justify-content:center;
+}
+
+.card:focus,
+.card:focus-within,
+.card:hover{
+  transform: translateY(-8px);
+  box-shadow: 0 18px 40px rgba(27,94,61,0.10);
+  border-color:var(--gold);
+  outline: none;
+}
+
+.card .icon{
+  width:72px;
+  height:72px;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto;
+  background:linear-gradient(180deg, rgba(245,245,245,1), rgba(250,250,250,1));
+  border:2px solid rgba(197,165,106,0.12);
+  font-size:28px;
+  color:var(--green);
+}
+
+.card h3{
+  margin:0;
+  font-size:16px;
+  font-weight:600;
+  color:var(--text);
+}
+.card p{
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.card .cta{
+  margin-top:10px;
+  display:inline-block;
+  padding:8px 14px;
+  border-radius:10px;
+  font-size:13px;
+  font-weight:600;
+  background:transparent;
+  border:1px solid rgba(27,94,61,0.08);
+  color:var(--green);
+  transition: background var(--transition), color var(--transition), transform var(--transition);
+}
+.card:hover .cta{ background:var(--green); color:#fff; transform: translateY(-2px) }
+
+/* Footer */
+footer.site-footer{
+  background:var(--green);
+  color:#fff;
+  padding:18px 20px;
+  border-top:4px solid var(--gold);
+  text-align:center;
+  font-size:14px;
+}
+
+/* Responsiveness */
+@media (max-width:1000px){
+  .cards{grid-template-columns: repeat(2, 1fr)}
+}
+@media (max-width:600px){
+  header.site-header{flex-wrap:wrap; padding:18px}
+  .header-actions{order:3; width:100%; text-align:left; margin-top:10px}
+  .brand .title{font-size:16px}
+  .cards{grid-template-columns: 1fr; gap:14px}
+  .hero{flex-direction:column; align-items:flex-start}
+}
+
+/* Accessibility focus */
+.card:focus-within,
+.card:focus{ box-shadow: 0 20px 48px rgba(27,94,61,0.12); border-color:var(--gold) }
