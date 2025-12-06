@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+@layer base {
+  .main-content {
+    transition: padding-left 0.3s ease-in-out;
+  }
+
+  @screen md {
+    .main-content.sidebar-open {
+      padding-left: 16rem; /* 64 * 4px = 256px */
+    }
+    .main-content.sidebar-closed {
+      padding-left: 5rem; /* 20 * 4px = 80px */
+    }
+  }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
