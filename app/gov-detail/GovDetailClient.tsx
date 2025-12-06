@@ -19,6 +19,7 @@ import {
 } from 'chart.js';
 import { Users, FileText, CircleDollarSign, Loader2 } from 'lucide-react';
 import { getFiscalYear } from '@/utils/helpers';
+import LoadingSpinner from '@/app/components/LoadingSpinner'; 
 
 // ลงทะเบียน components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler, ArcElement);
@@ -168,14 +169,7 @@ export default function GovDetailClient() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full p-8">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-500" />
-          <p className="text-gray-600">กำลังประมวลผลข้อมูล...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error) return <div className="p-8 text-red-500">เกิดข้อผิดพลาด: {error}</div>;

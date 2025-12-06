@@ -7,6 +7,7 @@ import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { Activity, Users, FileText, CircleDollarSign, Loader2, ArrowUpDown } from 'lucide-react';
 import { getFiscalYear } from '@/utils/helpers';
+import LoadingSpinner from '@/app/components/LoadingSpinner'; 
 
 // ลงทะเบียน components
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
@@ -202,14 +203,7 @@ export default function UcDetailClient() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full p-8">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-amber-500" />
-          <p className="text-gray-600">กำลังประมวลผลข้อมูลหัตถการ...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
   if (error) return <div className="p-8 text-red-500">เกิดข้อผิดพลาด: {error}</div>;
 

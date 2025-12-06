@@ -21,6 +21,7 @@ import { TrendingUp, CircleDollarSign, CalendarDays, Loader2 } from 'lucide-reac
 import Header from './Header';
 import ChartContainer from './ChartContainer';
 import SourceFilter, { type Source } from './SourceFilter'; 
+import LoadingSpinner from '@/app/components/LoadingSpinner'; 
 
 
 // Register Chart.js components
@@ -187,14 +188,7 @@ export default function DashboardClient() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full p-8">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-500" />
-          <p className="text-gray-600">กำลังเตรียมข้อมูลภาพรวม...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error) return <div className="flex h-screen items-center justify-center text-red-500">เกิดข้อผิดพลาด: {error}</div>;
