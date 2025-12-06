@@ -10,8 +10,8 @@ const prompt = Prompt({
 });
 
 export const metadata: Metadata = {
-  title: "Dashboard รพ.สระโบสถ์",
-  description: "Dashboard แสดงผลรายได้แพทย์แผนไทย",
+  title: "Dashboard แพทย์แผนไทย รพ.สระโบสถ์",
+  description: "Dashboard แสดงผลรายได้แพทย์แผนไทย รพ.สระโบสถ์",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
