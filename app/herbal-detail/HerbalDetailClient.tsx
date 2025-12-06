@@ -1,3 +1,4 @@
+// app/herbal-detail/HerbalDetailClient.tsx
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -12,7 +13,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, Tooltip, Legend);
 
 // Interfaces
 interface HerbalRawData {
-  service_date: string;
+  service_date: Date; // แก้ไข: เปลี่ยนจาก string เป็น Date
   hn: string;
   drug_name: string;
   price_nhso: number;
@@ -69,13 +70,14 @@ export default function HerbalDetailClient() {
         const apiUrl = `${process.env.NEXT_PUBLIC_GAS_API_URL}?page=herbal_detail`;
         const response = await axios.get(apiUrl);
         if (response.data?.success) {
-          const data = response.data.data.map((d: any) => ({
+          // ระบุ Type ให้ชัดเจนว่าเป็น HerbalRawData[]
+          const data: HerbalRawData[] = response.data.data.map((d: any) => ({
               ...d,
               service_date: new Date(d.service_date)
           }));
           setAllData(data);
           if (data.length > 0) {
-            const latestYear = Math.max(...data.map((d: any) => getFiscalYear(d.service_date)));
+            const latestYear = Math.max(...data.map((d) => getFiscalYear(d.service_date)));
             setSelectedFiscalYear(latestYear);
           }
         } else {
@@ -127,8 +129,8 @@ export default function HerbalDetailClient() {
     const highestRevenueDrugEntry = summaryTableData.length > 0 ? [...summaryTableData].sort((a,b) => b.revenue - a.revenue)[0] : null;
     const highestRevenueDrug = highestRevenueDrugEntry ? highestRevenueDrugEntry.name : 'N/A';
 
-    const maxPatientCount = Math.max(...summaryTableData.map(d => d.patientCount), 0) || 1; // หาจำนวนผู้ป่วยสูงสุด (ป้องกันการหารด้วย 0)
-    const MAX_BUBBLE_RADIUS = 50; // กำหนดขนาดรัศมีสูงสุดของฟองที่ใหญ่ที่สุด (pixels)
+    const maxPatientCount = Math.max(...summaryTableData.map(d => d.patientCount), 0) || 1; 
+    const MAX_BUBBLE_RADIUS = 50; 
 
     const bubbleChartData = {
         datasets: [{
@@ -136,7 +138,6 @@ export default function HerbalDetailClient() {
             data: summaryTableData.map(d => ({
                 x: d.count,
                 y: d.revenue,
-                // คำนวณรัศมีใหม่ตามสัดส่วน + ขนาดขั้นต่ำเพื่อให้มองเห็น
                 r: (d.patientCount / maxPatientCount) * MAX_BUBBLE_RADIUS + 5,
                 name: d.name
             })),
@@ -211,16 +212,26 @@ export default function HerbalDetailClient() {
       {/* Visualizations & Table */}
       <div className="grid grid-cols-1 gap-6">
         <ChartContainer title="การกระจายตัวของยาสมุนไพร">
-          <Bubble data={processedData.bubbleChartData} options={{
-            plugins: { tooltip: { callbacks: { label: (context) => {
-              const d = context.raw as any;
-              return `${d.name}: รายได้ ${d.y.toLocaleString()} บาท, จ่าย ${d.x} ครั้ง`;
-            }}}},
-            scales: {
-              x: { title: { display: true, text: 'จำนวนครั้งที่จ่าย →' }},
-              y: { title: { display: true, text: 'รายได้รวม (บาท) →' }}
-            }
-          }}/>
+            {/* ใส่ as any เพื่อ bypass type check ของ Bubble Chart */}
+          <Bubble 
+            data={processedData.bubbleChartData as any} 
+            options={{
+                plugins: { 
+                    tooltip: { 
+                        callbacks: { 
+                            label: (context) => {
+                                const d = context.raw as any;
+                                return `${d.name}: รายได้ ${d.y.toLocaleString()} บาท, จ่าย ${d.x} ครั้ง`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'จำนวนครั้งที่จ่าย →' }},
+                    y: { title: { display: true, text: 'รายได้รวม (บาท) →' }}
+                }
+            }}
+          />
         </ChartContainer>
 
         <div className="bg-white p-6 rounded-lg shadow-sm">

@@ -1,3 +1,4 @@
+// app/uc-detail/UcDetailClient.tsx
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -7,12 +8,12 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement,
 import { Activity, Users, FileText, CircleDollarSign, Loader2, ArrowUpDown } from 'lucide-react';
 import { getFiscalYear } from '@/utils/helpers';
 
-// ลงทะเบียน components (เพิ่ม LineElement, PointElement)
+// ลงทะเบียน components
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
-// Interfaces (เหมือนเดิม)
+// Interfaces
 interface UcRawData {
-  service_date: string;
+  service_date: Date; // แก้ไข: เปลี่ยนจาก string เป็น Date
   cid: string;
   procedure_name: string;
   points: number;
@@ -25,7 +26,7 @@ interface SummaryData {
     estimated_revenue: number;
 }
 
-// Reusable components (เปลี่ยนธีมสีเป็น Amber/Orange)
+// Reusable components
 const KpiCard = ({ icon, title, value }: { icon: React.ReactNode, title: string, value: string | number }) => (
   <div className="bg-white p-6 rounded-lg shadow-sm flex flex-col items-start h-full">
     <div className="bg-amber-100 text-amber-600 p-3 rounded-lg">{icon}</div>
@@ -66,13 +67,14 @@ export default function UcDetailClient() {
         const apiUrl = `${process.env.NEXT_PUBLIC_GAS_API_URL}?page=uc_detail`;
         const response = await axios.get(apiUrl);
         if (response.data?.success) {
-          const data = response.data.data.map((d: any) => ({
+          // ระบุ Type ให้ชัดเจน
+          const data: UcRawData[] = response.data.data.map((d: any) => ({
               ...d,
               service_date: new Date(d.service_date)
           }));
           setAllData(data);
           if (data.length > 0) {
-            const latestYear = Math.max(...data.map((d: any) => getFiscalYear(d.service_date)));
+            const latestYear = Math.max(...data.map((d) => getFiscalYear(d.service_date)));
             setSelectedFiscalYear(latestYear);
           }
         } else {
@@ -138,7 +140,7 @@ export default function UcDetailClient() {
                 type: 'bar' as const,
                 label: `รายได้ (${selectedProcedure === 'all' ? 'รวม' : selectedProcedure})`,
                 data: chartLabels.map(month => monthlyStats[month]?.revenue || 0),
-                backgroundColor: 'rgba(245, 159, 11, 0.56)', // สีส้ม Amber ทำให้เข้มขึ้นเล็กน้อย
+                backgroundColor: 'rgba(245, 159, 11, 0.56)',
                 borderColor: 'rgb(245, 158, 11)',
                 yAxisID: 'y',
                 order: 1
@@ -147,9 +149,9 @@ export default function UcDetailClient() {
                 type: 'line' as const,
                 label: 'จำนวนผู้ป่วย (คน)',
                 data: chartLabels.map(month => monthlyStats[month]?.patientCids.size || 0),
-                borderColor: 'rgb(20, 184, 166)',      // สี Teal
-                backgroundColor: 'rgba(20, 184, 166, 0.2)', // สีพื้นที่
-                fill: true,                            // <--- จุดสำคัญที่ทำให้เป็น Area Chart
+                borderColor: 'rgb(20, 184, 166)',
+                backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                fill: true,
                 yAxisID: 'y1',
                 tension: 0.4,
                 pointRadius: 3,
@@ -159,7 +161,7 @@ export default function UcDetailClient() {
         ]
     };
 
-    // --- Summary Table Calculations (เหมือนเดิม คำนวณจากภาพรวมเสมอ) ---
+    // --- Summary Table Calculations ---
     const procedureStats: { [key: string]: { points: number, count: number, patients: Set<string> } } = {};
     filteredByYear.forEach(d => {
         if (!procedureStats[d.procedure_name]) procedureStats[d.procedure_name] = { points: 0, count: 0, patients: new Set() };
@@ -179,7 +181,7 @@ export default function UcDetailClient() {
       comboChartData,
       summaryTableData,
     };
-  }, [allData, selectedFiscalYear, pointRate, selectedProcedure]); // <-- เพิ่ม selectedProcedure ใน dependency
+  }, [allData, selectedFiscalYear, pointRate, selectedProcedure]);
 
 
   // Logic for sorting the table
@@ -203,7 +205,7 @@ export default function UcDetailClient() {
     return (
       <div className="flex items-center justify-center h-full p-8">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-amber-500" /> {/* เปลี่ยนสี */}
+          <Loader2 className="h-12 w-12 animate-spin text-amber-500" />
           <p className="text-gray-600">กำลังประมวลผลข้อมูลหัตถการ...</p>
         </div>
       </div>
@@ -220,7 +222,6 @@ export default function UcDetailClient() {
           <p className="text-gray-500">ข้อมูลปีงบประมาณ {selectedFiscalYear || 'N/A'}</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 items-center">
-            {/* --- 3. เพิ่มฟิลเตอร์หัตถการ --- */}
             <select value={selectedProcedure} onChange={e => setSelectedProcedure(e.target.value)}
                 className="p-2 border border-gray-300 rounded-md bg-white text-gray-800 hover:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:outline-none transition-colors duration-200">
                 {processedData.procedures.map(p => <option key={p} value={p}>{p === 'all' ? 'หัตถการทั้งหมด' : p}</option>)}
@@ -240,7 +241,7 @@ export default function UcDetailClient() {
         </div>
       </header>
 
-      {/* KPI Cards (ตอนนี้จะอัปเดตตามฟิลเตอร์) */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-6">
         <KpiCard icon={<CircleDollarSign/>} title="รายได้ประมาณการ" value={`฿${processedData.kpis.totalRevenue.toLocaleString('th-TH', { maximumFractionDigits: 2 })}`} />
         <KpiCard icon={<Activity/>} title="แต้ม (Points) รวม" value={processedData.kpis.totalPoints.toLocaleString('th-TH')} />
@@ -252,21 +253,24 @@ export default function UcDetailClient() {
       {/* Visualizations & Table */}
       <div className="grid grid-cols-1 gap-6">
         <ChartContainer title={`แนวโน้มรายได้ (${selectedProcedure === 'all' ? 'รวมทุกหัตถการ' : selectedProcedure}) และจำนวนผู้ป่วยรายเดือน`}>
-          <Bar data={processedData.comboChartData} options={{ 
+          {/* ใส่ as any เพื่อ bypass type check สำหรับ Combo Chart */}
+          <Bar 
+            data={processedData.comboChartData as any} 
+            options={{ 
             scales: { 
               y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'ประมาณการรายได้ (บาท)' } }, 
               y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'จำนวนผู้ป่วย (คน)' } } 
             },
             plugins: { 
               legend: { 
-                display: true, // <-- เปิดการแสดงผล
-                position: 'top', // <-- ย้ายไปไว้ด้านบน
-                align: 'center',  // <-- จัดให้อยู่ตรงกลาง
+                display: true,
+                position: 'top',
+                align: 'center',
                 labels: {
                   boxWidth: 20,
                   padding: 20,
-                  usePointStyle: true, // ทำให้สัญลักษณ์เป็นวงกลมสำหรับกราฟเส้น
-                  pointStyle: 'rectRounded' // ทำให้สัญลักษณ์เป็นสี่เหลี่ยมมนสำหรับกราฟแท่ง
+                  usePointStyle: true,
+                  pointStyle: 'rectRounded'
                 }
               } 
             }

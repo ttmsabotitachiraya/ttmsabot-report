@@ -1,10 +1,23 @@
+// app/gov-detail/GovDetailClient.tsx
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler, ArcElement } from 'chart.js';
-import { Users, FileText, CircleDollarSign, Loader2 } from 'lucide-react'; // เพิ่ม Loader2
+import { 
+  Chart as ChartJS, 
+  CategoryScale, 
+  LinearScale, 
+  PointElement, 
+  LineElement, 
+  BarElement, 
+  Title, 
+  Tooltip, 
+  Legend, 
+  Filler, 
+  ArcElement 
+} from 'chart.js';
+import { Users, FileText, CircleDollarSign, Loader2 } from 'lucide-react';
 import { getFiscalYear } from '@/utils/helpers';
 
 // ลงทะเบียน components
@@ -12,7 +25,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
 
 // Interfaces
 interface GovRawData {
-  vstdate: string;
+  vstdate: Date;
   cid: string;
   pttype_name: string;
   item_list: string;
@@ -52,13 +65,13 @@ export default function GovDetailClient() {
         const apiUrl = `${process.env.NEXT_PUBLIC_GAS_API_URL}?page=gov_detail`;
         const response = await axios.get(apiUrl);
         if (response.data?.success) {
-          const data = response.data.data.map((d: any) => ({
+          const data: GovRawData[] = response.data.data.map((d: any) => ({
               ...d,
               vstdate: new Date(d.vstdate)
           }));
           setAllData(data);
           if (data.length > 0) {
-            const latestYear = Math.max(...data.map((d: any) => getFiscalYear(d.vstdate)));
+            const latestYear = Math.max(...data.map((d) => getFiscalYear(d.vstdate)));
             setSelectedFiscalYear(latestYear);
           }
         } else {
@@ -121,7 +134,6 @@ export default function GovDetailClient() {
             }
         });
     });
-    // *** แก้ไขจุดนี้: ลบ .reverse() ออก ***
     const topDrugs = Object.entries(drugCounts).sort(([, a], [, b]) => b - a).slice(0, 5);
 
     return {
@@ -168,10 +180,9 @@ export default function GovDetailClient() {
 
   if (error) return <div className="p-8 text-red-500">เกิดข้อผิดพลาด: {error}</div>;
 
-  // Render the page
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      {/* Header & Filters (แก้ไข className ของ select) */}
+      {/* Header & Filters */}
       <header className="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">วิเคราะห์รายได้สิทธิข้าราชการ</h1>
@@ -189,7 +200,7 @@ export default function GovDetailClient() {
         </div>
       </header>
 
-      {/* KPI Cards (แก้ไขการ์ดสุดท้าย) */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <KpiCard icon={<CircleDollarSign/>} title="รายได้รวม" value={`฿${processedData.kpis.totalRevenue.toLocaleString('th-TH', { maximumFractionDigits: 2 })}`} />
         <KpiCard icon={<FileText/>} title="จำนวนครั้งที่รับบริการ" value={processedData.kpis.totalVisits.toLocaleString('th-TH')} />
@@ -197,10 +208,19 @@ export default function GovDetailClient() {
         <KpiCard icon={<CircleDollarSign/>} title="รายได้เฉลี่ย/ครั้ง" value={`฿${processedData.kpis.revenuePerVisit.toLocaleString('th-TH', { maximumFractionDigits: 2 })}`} />
       </div>
       
-      {/* Visualizations (แก้ไข title ของ Bar Chart) */}
+      {/* Visualizations */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartContainer title="ภาพรวมรายได้และจำนวนผู้ป่วยรายเดือน">
-            <Line data={comboChart} options={{ scales: { y: { type: 'linear', display: true, position: 'left' }, y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false } } } }} />
+            {/* แก้ไขตรงนี้: ใส่ as any เพื่อ bypass type check สำหรับ Combo Chart */}
+            <Line 
+                data={comboChart as any} 
+                options={{ 
+                    scales: { 
+                        y: { type: 'linear', display: true, position: 'left' }, 
+                        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false } } 
+                    } 
+                }} 
+            />
         </ChartContainer>
         <ChartContainer title="สัดส่วนรายได้ตามประเภทสิทธิ">
             <Doughnut data={donutChart} options={{ maintainAspectRatio: false }} />
